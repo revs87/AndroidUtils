@@ -20,69 +20,39 @@ import com.ebankit.android.standardbankmz.R;
  */
 public class PhotoRounder {
     public static final int DP_BORDER_MENU_SIZE = 3;
-    public static final int DP_BORDER_PROFILE_PHOTO_SIZE = 3;
     public static final int DP_CORNER_SIZE = 6;
     public static final int DP_CORNER_OPERATIONS_SIZE = 3;
+
+    public static final int PHOTO_DEFAULT_WIDTH = 120;
+    public static final int PHOTO_DEFAULT_HEIGHT = 120;
 
     public PhotoRounder() {
         super();
     }
 
-    /* Lame code */
-    public static int IS_LDPI = 1;
-    public static int IS_MDPI = 2;
-    public static int IS_HDPI = 3;
-    public static int IS_XHDPI = 4;
-    public static int IS_XXHDPI = 5;
-    public static int IS_XXXHDPI = 6;
-    private static int getDensityStandard(Context context) {
-        double density = context.getResources().getDisplayMetrics().density;
-        if (density <= 0.75) {
-            return IS_LDPI;
-        } else if (density <= 1.0) {
-            return IS_MDPI;
-        } else if (density <= 1.5) {
-            return IS_HDPI;
-        } else if (density <= 2.0) {
-            return IS_XHDPI;
-        } else if (density <= 3.0) {
-            return IS_XXHDPI;
-        } else {
-            return IS_XXXHDPI;
-        }
-    }
-    public static float getRounderDensity(Context context, int borderDips) {
-        int dps = borderDips;
-        float factor = 0;
-        if (getDensityStandard(context) == IS_LDPI) {
-            factor = 0.75f;
-        } else if (getDensityStandard(context) == IS_MDPI) {
-            factor = 1; //pixels = 27
-        } else if (getDensityStandard(context) == IS_HDPI) {
-            factor = 1.5f;  //pixels = 40
-        } else if (getDensityStandard(context) == IS_XHDPI) {
-            factor = 2;
-        } else if (getDensityStandard(context) == IS_XXHDPI) {
-            factor = 3;
-        } else if (getDensityStandard(context) == IS_XXXHDPI) {
-            factor = 4;
-        }
-        if(factor > 1.5f){
-            return (dps * factor)/2;
-        }
-        return (dps * factor);
-    }
-
     /* getRoundedCornerBitmap */
     public static Bitmap getRoundedCornerBitmap(Context context, Bitmap bitmap, int cornerDips) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
-                .getHeight(), Bitmap.Config.ARGB_8888);
+        int width = PHOTO_DEFAULT_WIDTH;
+        int height = PHOTO_DEFAULT_HEIGHT;
+//        int width = bitmap.getWidth();
+//        int height = bitmap.getHeight();
+
+        // adjust bitmap size
+        bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                width,
+                height,
+                false);
+        Bitmap output = Bitmap.createBitmap(
+                width,
+                height,
+                Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
         final int cornerSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, (float) cornerDips,
                 context.getResources().getDisplayMetrics());
         final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final Rect rect = new Rect(0, 0, width, height);
         final RectF rectF = new RectF(rect);
 
         // prepare canvas for transfer
@@ -101,16 +71,29 @@ public class PhotoRounder {
 
     /* getRoundedCornerBitmapWithBorder */
     public static Bitmap getRoundedCornerBitmapWithBorder(Context context, Bitmap bitmap, int borderDips, int cornerDips) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(), bitmap
-                .getHeight(), Bitmap.Config.ARGB_8888);
+        int width = PHOTO_DEFAULT_WIDTH;
+        int height = PHOTO_DEFAULT_HEIGHT;
+//        int width = bitmap.getWidth();
+//        int height = bitmap.getHeight();
+
+        // adjust bitmap size
+        bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                width,
+                height,
+                false);
+        Bitmap output = Bitmap.createBitmap(
+                width,
+                height,
+                Bitmap.Config.ARGB_8888);
         Canvas canvas = new Canvas(output);
 
-        final int borderSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, getRounderDensity(context, borderDips),
+        final int borderSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, borderDips,
                 context.getResources().getDisplayMetrics());
-        final int cornerSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, getRounderDensity(context, cornerDips),
+        final int cornerSizePx = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, cornerDips,
                 context.getResources().getDisplayMetrics());
         final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
+        final Rect rect = new Rect(0, 0, width, height);
         final RectF rectF = new RectF(rect);
 
         // prepare canvas for transfer
@@ -125,7 +108,7 @@ public class PhotoRounder {
         canvas.drawBitmap(bitmap, rect, rect, paint);
 
         // draw border
-        paint.setColor(context.getResources().getColor(R.color.dashboard_divider));
+        paint.setColor(context.getResources().getColor(R.color.red));
         paint.setStyle(Paint.Style.STROKE);
         paint.setStrokeWidth((float) borderSizePx);
         canvas.drawRoundRect(rectF, cornerSizePx, cornerSizePx, paint);
@@ -139,7 +122,15 @@ public class PhotoRounder {
             return getRoundedCornerBitmap(context, ((BitmapDrawable) drawable).getBitmap(), cornerDips);
         }
 
+        int width = PHOTO_DEFAULT_WIDTH;
+        int height = PHOTO_DEFAULT_HEIGHT;
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        // adjust bitmap size
+        bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                width,
+                height,
+                false);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
@@ -153,7 +144,15 @@ public class PhotoRounder {
             return getRoundedCornerBitmapWithBorder(context, ((BitmapDrawable) drawable).getBitmap(), borderDips, cornerDips);
         }
 
+        int width = PHOTO_DEFAULT_WIDTH;
+        int height = PHOTO_DEFAULT_HEIGHT;
         Bitmap bitmap = Bitmap.createBitmap(drawable.getIntrinsicWidth(), drawable.getIntrinsicHeight(), Bitmap.Config.ARGB_8888);
+        // adjust bitmap size
+        bitmap = Bitmap.createScaledBitmap(
+                bitmap,
+                width,
+                height,
+                false);
         Canvas canvas = new Canvas(bitmap);
         drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
         drawable.draw(canvas);
